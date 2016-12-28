@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.cross_validation import train_test_split
 from sklearn.naive_bayes import MultinomialNB
+
 class SpamDetector:
     def __init__(self):
         self.df = pd.read_table('sms.tsv',header=None,names=['label','message'])
@@ -15,11 +16,15 @@ class SpamDetector:
 
 
     def __convertToVectors(self):
-        vectorizer = CountVectorizer()
-        x_train_dtm = vectorizer.fit_transform(self.X_train)
+        self.vectorizer = CountVectorizer()
+        x_train_dtm = self.vectorizer.fit_transform(self.X_train)
         self.x_train = x_train_dtm.toarray()
-        x_test_dtm = vectorizer.transform(self.X_test)
+        x_test_dtm = self.vectorizer.transform(self.X_test)
         self.x_test = x_test_dtm.toarray()
+    def predict(self,msg):
+        X = self.vectorizer.transform([msg])
+        labels = ["Not Spam","Spam"]
+        return labels[self.nb.predict(X)[0]]
     def train(self):
         self.nb = MultinomialNB()
         self.nb.fit(self.x_train,self.Y_train)
@@ -36,6 +41,3 @@ class SpamDetector:
             if y == new_y:
                 correct = correct+1
         print float((correct*1.0)/len(new_y_test))
-spamDetector = SpamDetector()
-spamDetector.train()
-spamDetector.test()
